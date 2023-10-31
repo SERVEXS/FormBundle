@@ -8,7 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 
 class FormTest extends WebTestCase
 {
-    static protected function createKernel(array $options = array())
+    static protected function createKernel(array $options = [])
     {
         return self::$kernel = new AppKernel('test', true);
     }
@@ -22,15 +22,10 @@ class FormTest extends WebTestCase
         $kernel->boot();
 
         $formBuilder = $kernel->getContainer()->get('form.factory')->createBuilder(FormType::class);
-        $formBuilder->add('user', EntityIdType::class, array(
-            'class' => 'Gregwar\FormBundle\Tests\Functional\User',
-            'hidden' => $hidden,
-        ));
+        $formBuilder->add('user', EntityIdType::class, ['class' => 'Gregwar\FormBundle\Tests\Functional\User', 'hidden' => $hidden]);
         $form = $formBuilder->getForm();
 
-        $html = $kernel->getContainer()->get('twig')->render('::view.html.twig', array(
-            'form' => $form->createView(),
-        ));
+        $html = $kernel->getContainer()->get('twig')->render('::view.html.twig', ['form' => $form->createView()]);
 
         $this->assertEquals('<input type="'.$type.'" id="form_user" name="form[user]" required="required" />', trim($html));
     }
@@ -51,9 +46,6 @@ class FormTest extends WebTestCase
 
     public function getTestFormData()
     {
-        return array(
-            array(true, 'hidden'),
-            array(false, 'text')
-        );
+        return [[true, 'hidden'], [false, 'text']];
     }
 }

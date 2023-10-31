@@ -37,17 +37,9 @@ class EntityIdType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setRequired(array(
-            'class',
-        ));
+        $resolver->setRequired(['class']);
 
-        $resolver->setDefaults(array(
-            'em'            => null,
-            'property'      => null,
-            'query_builder' => null,
-            'hidden'        => true,
-            'multiple'      => false,
-        ));
+        $resolver->setDefaults(['em'            => null, 'property'      => null, 'query_builder' => null, 'hidden'        => true, 'multiple'      => false]);
     }
 
     public function buildView(FormView $view, FormInterface $form, array $options): void

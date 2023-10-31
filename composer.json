@@ -20,7 +20,14 @@
         "friendsofphp/php-cs-fixer": "^3.35.1"
     },
     "autoload": {
-        "psr-0": { "Gregwar\\FormBundle": "" }
+        "psr-4": {
+            "Gregwar\\FormBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Gregwar\\FormBundle\\Tests\\": "tests/"
+        }
     },
     "target-dir": "Gregwar/FormBundle",
     "extra": {
@@ -32,6 +39,7 @@
         "rector": "rector process",
         "rector:dry": "rector process --dry-run",
         "cs-fix": "php-cs-fixer fix --verbose",
-        "cs-fix:dry": "php-cs-fixer fix --dry-run"
+        "cs-fix:dry": "php-cs-fixer fix --dry-run",
+        "tests": "phpunit"
     }
 }
