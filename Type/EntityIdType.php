@@ -2,31 +2,29 @@
 
 namespace Gregwar\FormBundle\Type;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\FormInterface;
 
 use Gregwar\FormBundle\DataTransformer\EntityToIdTransformer;
 
 /**
- * Entity identitifer
- *
  * @author Gregwar <g.passault@gmail.com>
  */
 class EntityIdType extends AbstractType
 {
-    protected $registry;
+    protected ManagerRegistry $registry;
 
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         $this->registry = $registry;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(new EntityToIdTransformer(
             $this->registry->getManager($options['em']),
@@ -37,13 +35,7 @@ class EntityIdType extends AbstractType
         ));
     }
 
-    // Todo: remove when Symfony < 2.7 support is dropped
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
-    {
-        $this->configureOptions($resolver);
-    }
-
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired(array(
             'class',
@@ -58,31 +50,15 @@ class EntityIdType extends AbstractType
         ));
     }
 
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         if (true === $options['hidden']) {
             $view->vars['type'] = 'hidden';
         }
     }
 
-    public function getParent()
+    public function getParent(): string
     {
-        // BC for SF < 2.8
-        if (!method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix')) {
-            return 'text';
-        }
-
-        return 'Symfony\Component\Form\Extension\Core\Type\TextType';
-    }
-
-    public function getBlockPrefix()
-    {
-        return 'entity_id';
-    }
-
-    // BC for SF < 2.8
-    public function getName()
-    {
-        return $this->getBlockPrefix();
+        return TextType::class;
     }
 }
