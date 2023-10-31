@@ -28,7 +28,7 @@ public function registerBundles()
 
 Finally, add the following block to the configuration :
 
-    # app/config/config.yml
+    # app/config/config.yaml
     gregwar_form: ~
 
 Usage
