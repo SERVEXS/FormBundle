@@ -59,7 +59,7 @@ class EntityToIdTransformer implements DataTransformerInterface
             return $this->transformSingleEntity($data);
         }
 
-        $return = array();
+        $return = [];
 
         foreach ($data as $element) {
             $return[] = $this->transformSingleEntity($element);
@@ -98,7 +98,7 @@ class EntityToIdTransformer implements DataTransformerInterface
             return $this->reverseTransformSingleEntity($data);
         }
 
-        $return = array();
+        $return = [];
 
         foreach ($this->splitData($data) as $element) {
             $return[] = $this->reverseTransformSingleEntity($element);
@@ -125,7 +125,7 @@ class EntityToIdTransformer implements DataTransformerInterface
             }
         } else {
             if ($this->property) {
-                $result = $repository->findOneBy(array($this->property => $data));
+                $result = $repository->findOneBy([$this->property => $data]);
             } else {
                 $result = $repository->find($data);
             }
