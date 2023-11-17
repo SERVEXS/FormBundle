@@ -21,30 +21,20 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
  */
 class EntityToIdTransformer implements DataTransformerInterface
 {
-    protected EntityManagerInterface $entityManager;
-
     private string $class;
 
     private ?string $property = null;
 
-    /**
-     * @var \Closure|QueryBuilder|null
-     */
-    private $queryBuilder;
+    private QueryBuilder|\Closure|null $queryBuilder = null;
 
-    private bool $multiple;
+    private readonly UnitOfWork $unitOfWork;
 
-    private UnitOfWork $unitOfWork;
-
-    /**
-     * @param \Closure|QueryBuilder|null $queryBuilder
-     */
     public function __construct(
-        EntityManagerInterface $entityManager,
+        protected EntityManagerInterface $entityManager,
         ?string $class,
         ?string $property = null,
-        $queryBuilder = null,
-        bool $multiple = false
+        QueryBuilder|\Closure|null $queryBuilder = null,
+        private readonly bool $multiple = false
     ) {
         if (!(null === $queryBuilder || $queryBuilder instanceof QueryBuilder || $queryBuilder instanceof \Closure)) {
             throw new UnexpectedTypeException($queryBuilder, 'Doctrine\ORM\QueryBuilder or \Closure');
@@ -53,12 +43,9 @@ class EntityToIdTransformer implements DataTransformerInterface
         if (null == $class) {
             throw new UnexpectedTypeException($class, 'string');
         }
-
-        $this->entityManager = $entityManager;
         $this->unitOfWork = $this->entityManager->getUnitOfWork();
         $this->class = $class;
         $this->queryBuilder = $queryBuilder;
-        $this->multiple = $multiple;
 
         if ($property) {
             $this->property = $property;
@@ -86,7 +73,7 @@ class EntityToIdTransformer implements DataTransformerInterface
 
     protected function splitData($data)
     {
-        return is_array($data) ? $data : explode(',', $data);
+        return is_array($data) ? $data : explode(',', (string) $data);
     }
 
     /**
@@ -139,7 +126,7 @@ class EntityToIdTransformer implements DataTransformerInterface
 
             try {
                 $result = $qb->getQuery()->getSingleResult();
-            } catch (NoResultException $e) {
+            } catch (NoResultException) {
                 $result = null;
             }
         } else {

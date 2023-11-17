@@ -8,7 +8,7 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/tests',
     ]);
     $rectorConfig->sets([
-        \Rector\Set\ValueObject\LevelSetList::UP_TO_PHP_74,
+        \Rector\Set\ValueObject\LevelSetList::UP_TO_PHP_82,
 //      \Rector\Symfony\Set\SymfonyLevelSetList::UP_TO_SYMFONY_54,
     ]);
 };

@@ -3,7 +3,7 @@
     "description": "Provides the \"entity_id\" type (read \"entity identifier\")",
     "license": "MIT",
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.2",
         "symfony/framework-bundle": "^5.0 || ^6.0",
         "symfony/form": "^5.0 || ^6.0",
         "symfony/validator": "^5.0 || ^6.0",

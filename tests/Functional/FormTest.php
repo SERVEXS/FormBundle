@@ -22,12 +22,19 @@ class FormTest extends WebTestCase
         $kernel->boot();
 
         $formBuilder = $kernel->getContainer()->get('form.factory')->createBuilder(FormType::class);
-        $formBuilder->add('user', EntityIdType::class, ['class' => 'Gregwar\FormBundle\Tests\Functional\User', 'hidden' => $hidden]);
+        $formBuilder->add(
+            'user',
+            EntityIdType::class,
+            ['class' => 'Gregwar\FormBundle\Tests\Functional\User', 'hidden' => $hidden]
+        );
         $form = $formBuilder->getForm();
 
         $html = $kernel->getContainer()->get('twig')->render('::view.html.twig', ['form' => $form->createView()]);
 
-        $this->assertEquals('<input type="'.$type.'" id="form_user" name="form[user]" required="required" />', trim($html));
+        $this->assertEquals(
+            '<input type="' . $type . '" id="form_user" name="form[user]" required="required" />',
+            trim((string)$html)
+        );
     }
 
     /**
