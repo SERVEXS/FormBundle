@@ -1,17 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gregwar\FormBundle\DataTransformer;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\UnitOfWork;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormInterface;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
-
-use Doctrine\ORM\NoResultException;
 
 /**
  * Data transformation class
@@ -20,16 +21,31 @@ use Doctrine\ORM\NoResultException;
  */
 class EntityToIdTransformer implements DataTransformerInterface
 {
-    protected $em;
-    private $class;
-    private $property;
+    protected EntityManagerInterface $entityManager;
+
+    private string $class;
+
+    private ?string $property = null;
+
+    /**
+     * @var \Closure|QueryBuilder|null
+     */
     private $queryBuilder;
-    private $multiple;
 
-    private $unitOfWork;
+    private bool $multiple;
 
-    public function __construct(EntityManager $em, $class, $property, $queryBuilder, $multiple)
-    {
+    private UnitOfWork $unitOfWork;
+
+    /**
+     * @param \Closure|QueryBuilder|null $queryBuilder
+     */
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        ?string $class,
+        ?string $property = null,
+        $queryBuilder = null,
+        bool $multiple = false
+    ) {
         if (!(null === $queryBuilder || $queryBuilder instanceof QueryBuilder || $queryBuilder instanceof \Closure)) {
             throw new UnexpectedTypeException($queryBuilder, 'Doctrine\ORM\QueryBuilder or \Closure');
         }
@@ -38,8 +54,8 @@ class EntityToIdTransformer implements DataTransformerInterface
             throw new UnexpectedTypeException($class, 'string');
         }
 
-        $this->em = $em;
-        $this->unitOfWork = $this->em->getUnitOfWork();
+        $this->entityManager = $entityManager;
+        $this->unitOfWork = $this->entityManager->getUnitOfWork();
         $this->class = $class;
         $this->queryBuilder = $queryBuilder;
         $this->multiple = $multiple;
@@ -59,7 +75,7 @@ class EntityToIdTransformer implements DataTransformerInterface
             return $this->transformSingleEntity($data);
         }
 
-        $return = array();
+        $return = [];
 
         foreach ($data as $element) {
             $return[] = $this->transformSingleEntity($element);
@@ -73,7 +89,11 @@ class EntityToIdTransformer implements DataTransformerInterface
         return is_array($data) ? $data : explode(',', $data);
     }
 
-
+    /**
+     * @return false|mixed|null
+     *
+     * @throws EntityNotFoundException
+     */
     protected function transformSingleEntity($data)
     {
         if (!$this->unitOfWork->isInIdentityMap($data)) {
@@ -81,8 +101,7 @@ class EntityToIdTransformer implements DataTransformerInterface
         }
 
         if ($this->property) {
-            $propertyAccessor = new PropertyAccessor();
-            return $propertyAccessor->getValue($data, $this->property);
+            return (new PropertyAccessor())->getValue($data, $this->property);
         }
 
         return current($this->unitOfWork->getEntityIdentifier($data));
@@ -98,7 +117,7 @@ class EntityToIdTransformer implements DataTransformerInterface
             return $this->reverseTransformSingleEntity($data);
         }
 
-        $return = array();
+        $return = [];
 
         foreach ($this->splitData($data) as $element) {
             $return[] = $this->reverseTransformSingleEntity($element);
@@ -109,7 +128,7 @@ class EntityToIdTransformer implements DataTransformerInterface
 
     protected function reverseTransformSingleEntity($data)
     {
-        $em = $this->em;
+        $em = $this->entityManager;
         $class = $this->class;
         $repository = $em->getRepository($class);
 
@@ -125,7 +144,7 @@ class EntityToIdTransformer implements DataTransformerInterface
             }
         } else {
             if ($this->property) {
-                $result = $repository->findOneBy(array($this->property => $data));
+                $result = $repository->findOneBy([$this->property => $data]);
             } else {
                 $result = $repository->find($data);
             }
