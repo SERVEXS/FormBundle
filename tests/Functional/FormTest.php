@@ -3,22 +3,22 @@
 namespace Gregwar\FormBundle\Tests\Functional;
 
 use Gregwar\FormBundle\Type\EntityIdType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class FormTest extends WebTestCase
 {
-    static protected function createKernel(array $options = [])
+    protected static function createKernel(array $options = []): KernelInterface
     {
         return self::$kernel = new AppKernel('test', true);
     }
 
-    /**
-     * @dataProvider getTestFormData
-     */
-    public function testForm($hidden, $type)
+    #[DataProvider('getTestFormData')]
+    public function testForm($hidden, $type): void
     {
-        $kernel = $this->createKernel();
+        $kernel = self::createKernel();
         $kernel->boot();
 
         $formBuilder = $kernel->getContainer()->get('form.factory')->createBuilder(FormType::class);
@@ -33,17 +33,15 @@ class FormTest extends WebTestCase
 
         $this->assertEquals(
             '<input type="' . $type . '" id="form_user" name="form[user]" required="required" />',
-            trim((string)$html)
+            trim((string) $html)
         );
     }
 
-    /**
-     * @expectedException Symfony\Component\OptionsResolver\Exception\MissingOptionsException
-     * @expectedExceptionMessage The required option "class" is missing.
-     */
-    public function testFormWithNoClass()
+    public function testFormWithNoClass(): void
     {
-        $kernel = $this->createKernel();
+        $this->expectException(MissingOptionsException::class);
+        $this->expectExceptionMessage('The required option "class" is missing.');
+        $kernel = self::createKernel();
         $kernel->boot();
 
         $formBuilder = $kernel->getContainer()->get('form.factory')->createBuilder(FormType::class);
@@ -51,7 +49,7 @@ class FormTest extends WebTestCase
         $form = $formBuilder->getForm();
     }
 
-    public function getTestFormData()
+    public static function getTestFormData(): array
     {
         return [[true, 'hidden'], [false, 'text']];
     }

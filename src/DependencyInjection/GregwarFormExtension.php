@@ -17,4 +17,3 @@ class GregwarFormExtension extends Extension
         $loader->load('services.yaml');
     }
 }
-

@@ -71,7 +71,7 @@ class EntityToIdTransformer implements DataTransformerInterface
         return implode(', ', $return);
     }
 
-    protected function splitData($data)
+    protected function splitData($data): array
     {
         return is_array($data) ? $data : explode(',', (string) $data);
     }

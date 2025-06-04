@@ -1,4 +1,9 @@
 services:
+  _defaults:
+    autoconfigure: true
+    autowire: true
+    public: true
+
   # entity_id type
   entity_id.type:
     class: Gregwar\FormBundle\Type\EntityIdType
