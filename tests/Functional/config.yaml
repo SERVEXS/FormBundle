@@ -1,14 +1,12 @@
 framework:
     secret: test
-    test: ~
+    test: true
     form: true
-    templating:
-        engines: ['twig']
     router:
-        resource: "%kernel.root_dir%/config/routing.yml"
+        resource: "%kernel.project_dir%/config/routing.yaml"
         strict_requirements: "%kernel.debug%"
     session:
-        storage_id: session.storage.mock_file
+        storage_factory_id: session.storage.factory.mock_file
 
 doctrine:
     dbal:
