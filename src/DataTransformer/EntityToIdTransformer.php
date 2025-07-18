@@ -34,13 +34,13 @@ class EntityToIdTransformer implements DataTransformerInterface
         ?string $class,
         ?string $property = null,
         QueryBuilder|\Closure|null $queryBuilder = null,
-        private readonly bool $multiple = false
+        private readonly bool $multiple = false,
     ) {
         if (!(null === $queryBuilder || $queryBuilder instanceof QueryBuilder || $queryBuilder instanceof \Closure)) {
             throw new UnexpectedTypeException($queryBuilder, 'Doctrine\ORM\QueryBuilder or \Closure');
         }
 
-        if (null == $class) {
+        if (null === $class) {
             throw new UnexpectedTypeException($class, 'string');
         }
         $this->unitOfWork = $this->entityManager->getUnitOfWork();
@@ -52,19 +52,19 @@ class EntityToIdTransformer implements DataTransformerInterface
         }
     }
 
-    public function transform($data)
+    public function transform(mixed $value)
     {
-        if (null === $data) {
+        if (null === $value) {
             return null;
         }
 
         if (!$this->multiple) {
-            return $this->transformSingleEntity($data);
+            return $this->transformSingleEntity($value);
         }
 
         $return = [];
 
-        foreach ($data as $element) {
+        foreach ($value as $element) {
             $return[] = $this->transformSingleEntity($element);
         }
 
@@ -81,7 +81,7 @@ class EntityToIdTransformer implements DataTransformerInterface
      *
      * @throws EntityNotFoundException
      */
-    protected function transformSingleEntity($data)
+    protected function transformSingleEntity(mixed $data)
     {
         if (!$this->unitOfWork->isInIdentityMap($data)) {
             throw new TransformationFailedException('Entities passed to the choice field must be managed');
@@ -94,19 +94,19 @@ class EntityToIdTransformer implements DataTransformerInterface
         return current($this->unitOfWork->getEntityIdentifier($data));
     }
 
-    public function reverseTransform($data)
+    public function reverseTransform(mixed $value)
     {
-        if (!$data) {
+        if (!$value) {
             return null;
         }
 
         if (!$this->multiple) {
-            return $this->reverseTransformSingleEntity($data);
+            return $this->reverseTransformSingleEntity($value);
         }
 
         $return = [];
 
-        foreach ($this->splitData($data) as $element) {
+        foreach ($this->splitData($value) as $element) {
             $return[] = $this->reverseTransformSingleEntity($element);
         }
 

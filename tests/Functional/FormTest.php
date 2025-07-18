@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 
 class FormTest extends WebTestCase
 {
